@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    >
+
+    <ImageButton
+        android:id="@+id/imgbtn"
+        android:layout_alignParentRight="true"
+        android:layout_margin="30dp"
+        android:layout_width="30dp"
+        android:layout_height="10dp"
+        android:src="@drawable/button"
+        android:onClick="menuClick"
+        />
+    <Button
+        android:id="@+id/button1"
+        android:text="내 위치정보 가져오기"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_below="@+id/button1"
+        android:id="@+id/txtResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+    <Button
+        android:id="@+id/button2"
+        android:text="지도버튼"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <fragment
+        android:id="@+id/fragment"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+
+
+</LinearLayout>
