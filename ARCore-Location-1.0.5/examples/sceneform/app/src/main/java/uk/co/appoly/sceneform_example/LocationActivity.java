@@ -63,6 +63,7 @@ import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.LocationNode;
 import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
+import uk.co.appoly.arcorelocation.utils.LocationUtils;
 
 /**
  * This is a simple example that shows how to create an augmented reality (AR) application using the
@@ -75,14 +76,14 @@ public class LocationActivity extends AppCompatActivity {
 
     private Snackbar loadingMessageSnackbar = null;
 
-    private ArSceneView arSceneView;
+     ArSceneView arSceneView;
 
     // Renderables for this example
     private ModelRenderable andyRenderable;
     private ViewRenderable exampleLayoutRenderable;
 
     // Our ARCore-Location scene
-    private LocationScene locationScene;
+     LocationScene locationScene;
     private Button button;
      TextView textView;
 
@@ -106,7 +107,7 @@ public class LocationActivity extends AppCompatActivity {
 
 
         //GPS위치
-        GPSLcation gpsLcation= new GPSLcation(this);
+        GPSLcation gpsLcation= new GPSLcation(this,this);
         try {
             // GPS 제공자의 정보가 바뀌면 콜백하도록 리스너 등록하기~!!!
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -191,6 +192,22 @@ public class LocationActivity extends AppCompatActivity {
                                         getExampleView()
                                 );
 
+
+                                locationScene.mLocationMarkers.add(
+                                        new LocationMarker(
+                                                129.040,
+                                                35.090,
+                                                getAndy()));
+                                locationScene.mLocationMarkers.add(
+                                        new LocationMarker(
+                                                129.041,
+                                                35.090,
+                                                getAndy()));
+
+
+
+
+
                                 // An example "onRender" event, called every frame
                                 // Updates the layout with the markers distance
                                 layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
@@ -217,6 +234,7 @@ public class LocationActivity extends AppCompatActivity {
                             if (frame == null) {
                                 return;
                             }
+
 
                             if (frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
                                 return;

@@ -1,16 +1,23 @@
 package uk.co.appoly.sceneform_example;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import uk.co.appoly.arcorelocation.LocationScene;
+import uk.co.appoly.arcorelocation.sensor.DeviceLocation;
+import uk.co.appoly.arcorelocation.utils.LocationUtils;
+
 public class GPSLcation {
     Context mcontext;
+    Activity mActivity;
     GPSLcation(){}
-    GPSLcation(Context context){
+    GPSLcation(Context context,Activity activity){
         mcontext = context;
+        mActivity = activity;
     }
 
 
@@ -24,18 +31,27 @@ public class GPSLcation {
             double latitude = Double.parseDouble(String.format("%.3f",location.getLatitude()));   //위도
             double altitude = Double.parseDouble(String.format("%.3f",location.getAltitude())); //고도
 
+            LocationScene locationScene =  new LocationScene(mcontext, mActivity, ((LocationActivity) mcontext).arSceneView);
+            double longitude1 = locationScene.deviceLocation.currentBestLocation.getLongitude(); //경도
+            double latitude1 =locationScene.deviceLocation.currentBestLocation.getLatitude();   //위도
+            double altitude1 = locationScene.deviceLocation.currentBestLocation.getAltitude(); //고도
+
 //            Location locationA = new Location("A");
 //            locationA.setLatitude(129.039);
 //            locationA.setLongitude(35.088);
 //            float distance = location.distanceTo(locationA);
-            String distance = calcDistance(latitude, longitude, 129.039, 35.088);
+
+            String distance = calcDistance(latitude1, longitude1, 129.039, 35.088);
+            double distance1 = LocationUtils.distance(latitude1, 35.097, longitude1, 129.034, 0.0D, 0.0D);
             String provider = location.getProvider();   //위치제공자
             //Gps 위치제공자에 의한 위치변화. 오차범위가 좁다.
             //Network 위치제공자에 의한 위치변화
             //Network 위치는 Gps에 비해 정확도가 많이 떨어진다.
-            ((LocationActivity) mcontext).textView.setText("위치정보 : " + provider + "\n위도 : " + longitude + "\n경도 : " + latitude
-                    + "\n고도 : " + altitude + "\n거리 : " +  distance);
+            double bearing = LocationUtils.bearing(129.039,35.088,latitude1,longitude1);
+            ((LocationActivity) mcontext).textView.setText("위치정보 : " + provider + "\n위도 : " + longitude1 + "\n경도 : " + latitude1
+                    + "\n고도 : " + altitude1 + "\n거리 : " +  distance1 + "\n각도 : " +  bearing);
 
+           // ((LocationActivity) mcontext).textView.setText("\n고도 : " + distance + "\n거리 : " +  distance1);
         }
         public void onProviderDisabled(String provider) {
             // Disabled시
@@ -72,5 +88,6 @@ public class GPSLcation {
 
         return result;
     }
+
 
 }
