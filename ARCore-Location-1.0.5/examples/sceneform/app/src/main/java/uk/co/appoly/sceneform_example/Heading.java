@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 public class Heading {
     Context mcontext1;
+    float e1;
+    float e2;
+    float e3;
 
     Heading(){}
     Heading(Context context){ mcontext1 = context;    }
@@ -24,10 +27,13 @@ public class Heading {
             public void onSensorChanged(SensorEvent event) {
                 if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
                     // 방향센서값이 변경된거라면
+                    e1=Float.parseFloat(String.format("%3.3f",event.values[0]));
+                    e2=Float.parseFloat(String.format("%3.3f",event.values[1]));
+                    e3=Float.parseFloat(String.format("%3.3f",event.values[2]));
                     String str = "방향센서값 \n\n"
-                            +"\n방위각: "+ Float.parseFloat(String.format("%3.3f",event.values[0]))
-                            +"\n피치 : "+Float.parseFloat(String.format("%3.3f",event.values[1]))
-                            +"\n롤 : "+Float.parseFloat(String.format("%3.3f",event.values[2]));
+                            +"\n방위각: "+ e1
+                            +"\n피치 : "+ e2
+                            +"\n롤 : "+ e3;
                     ((LocationActivity) mcontext1).tv.setText(str);
                 }
             }
@@ -40,6 +46,9 @@ public class Heading {
         ((LocationActivity) mcontext1).sm.registerListener(_SensorEventListener , ((LocationActivity) mcontext1).s, SensorManager.SENSOR_DELAY_UI);
     }
 
+    float getHeading(){
+        return e1;
+    }
 
 
 

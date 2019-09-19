@@ -16,34 +16,36 @@
 package uk.co.appoly.sceneform_example;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
-
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.RotateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Session;
@@ -63,47 +65,75 @@ import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.LocationNode;
 import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
-import uk.co.appoly.arcorelocation.utils.LocationUtils;
 
 /**
  * This is a simple example that shows how to create an augmented reality (AR) application using the
  * ARCore and Sceneform APIs.
  */
-
-
 public class LocationActivity extends AppCompatActivity {
     private boolean installRequested;
 
     private Snackbar loadingMessageSnackbar = null;
-
-     ArSceneView arSceneView;
+    private int currentApiVersion;
+    ArSceneView arSceneView;
 
     // Renderables for this example
     private ModelRenderable andyRenderable;
     private ViewRenderable exampleLayoutRenderable;
 
+
     // Our ARCore-Location scene
-     LocationScene locationScene;
+    private LocationScene locationScene;
     private Button button;
-     TextView textView;
 
-     TextView tv;
-     SensorManager sm;
-     Sensor s;
+    private View 	decorView;
+    private int	uiOption;
 
-
+    TextView textView;
+    TextView tv;
+    SensorManager sm;
+    Sensor s;
+    TextView ntextview ;
+    ImageButton nimagebutton;
 
 
     @Override
+    @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
+    // CompletableFuture requires api level 24
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setSoftInputMode(WindowManager.
+                LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         setContentView(R.layout.activity_sceneform);
+
+        decorView = getWindow().getDecorView();
+        uiOption = getWindow().getDecorView().getSystemUiVisibility();
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH )
+            uiOption |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
+            uiOption |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT )
+            uiOption |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+
+
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         arSceneView = findViewById(R.id.ar_scene_view);
-        button = (Button) findViewById(R.id.imgbtn);
+
+        button = (Button) findViewById(R.id.imgbtn);//button
         registerForContextMenu(button);
         textView = (TextView) findViewById(R.id.textView);
         tv= (TextView) findViewById(R.id.textView2);
+
+        //ntextview = (TextView)findViewById(R.id.ntextView);
+        nimagebutton = (ImageButton)findViewById(R.id.nimageView);
+
+
+
+
 
 
         //GPS위치
@@ -130,6 +160,7 @@ public class LocationActivity extends AppCompatActivity {
         Heading heading =  new Heading(this);
         heading.Heading();
 
+        //나침반
 
 
 
@@ -185,15 +216,13 @@ public class LocationActivity extends AppCompatActivity {
 
                                 // Now lets create our location markers.
                                 // First, a layout
-                                //글자판
                                 LocationMarker layoutLocationMarker = new LocationMarker(
-                                        129.039,
+                                               129.039,
                                             35.088,
                                         getExampleView()
                                 );
-
-
-                                locationScene.mLocationMarkers.add(
+								
+								               locationScene.mLocationMarkers.add(
                                         new LocationMarker(
                                                 129.040,
                                                 35.090,
@@ -203,10 +232,6 @@ public class LocationActivity extends AppCompatActivity {
                                                 129.041,
                                                 35.090,
                                                 getAndy()));
-
-
-
-
 
                                 // An example "onRender" event, called every frame
                                 // Updates the layout with the markers distance
@@ -222,10 +247,9 @@ public class LocationActivity extends AppCompatActivity {
                                 locationScene.mLocationMarkers.add(layoutLocationMarker);
 
                                 // Adding a simple location marker of a 3D model
-                                //안드로이드 캐릭터
                                 locationScene.mLocationMarkers.add(
                                         new LocationMarker(
-                                                129.039,
+												129.039,
                                                 35.088,
                                                 getAndy()));
                             }
@@ -234,7 +258,6 @@ public class LocationActivity extends AppCompatActivity {
                             if (frame == null) {
                                 return;
                             }
-
 
                             if (frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
                                 return;
@@ -247,7 +270,7 @@ public class LocationActivity extends AppCompatActivity {
                             if (loadingMessageSnackbar != null) {
                                 for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
                                     if (plane.getTrackingState() == TrackingState.TRACKING) {
-                                        //hideLoadingMessage();
+                                        hideLoadingMessage();
                                     }
                                 }
                             }
@@ -257,6 +280,9 @@ public class LocationActivity extends AppCompatActivity {
         // Lastly request CAMERA & fine location permission which is required by ARCore-Location.
         ARLocationPermissionHelper.requestPermission(this);
     }
+
+
+
 
 
 
@@ -289,7 +315,6 @@ public class LocationActivity extends AppCompatActivity {
      *
      * @return
      */
-
     private Node getAndy() {
         Node base = new Node();
         base.setRenderable(andyRenderable);
@@ -308,7 +333,7 @@ public class LocationActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        onWindowFocusChanged(true);
         if (locationScene != null) {
             locationScene.resume();
         }
@@ -338,7 +363,7 @@ public class LocationActivity extends AppCompatActivity {
         }
 
         if (arSceneView.getSession() != null) {
-            //showLoadingMessage();
+
         }
     }
 
@@ -348,8 +373,7 @@ public class LocationActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-
-
+        onWindowFocusChanged(true);
         if (locationScene != null) {
             locationScene.pause();
         }
@@ -379,97 +403,83 @@ public class LocationActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            // Standard Android full-screen functionality.
-            getWindow()
-                    .getDecorView()
-                    .setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-    }
 
-    /*
-    private void showLoadingMessage() {
-        if (loadingMessageSnackbar != null && loadingMessageSnackbar.isShownOrQueued()) {
+
+
+    private void hideLoadingMessage() {
+        if (loadingMessageSnackbar == null) {
             return;
         }
 
-        loadingMessageSnackbar =
-                Snackbar.make(
-                        LocationActivity.this.findViewById(android.R.id.content),
-                        R.string.plane_finding,
-                        Snackbar.LENGTH_INDEFINITE);
-        loadingMessageSnackbar.getView().setBackgroundColor(0xbf323232);
-        loadingMessageSnackbar.show();
+        loadingMessageSnackbar.dismiss();
+        loadingMessageSnackbar = null;
     }
-*/
-//    private void hideLoadingMessage() {
-//        if (loadingMessageSnackbar == null) {
-//            return;
-//        }
-//
-//        loadingMessageSnackbar.dismiss();
-//        loadingMessageSnackbar = null;
-//    }
 
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        if(v==button){
-            getMenuInflater().inflate(R.menu.menu_main,menu);
+    public void onWindowFocusChanged(boolean hasFocus) {
+        //super.onWindowFocusChanged(hasFocus);
+        if( hasFocus ) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
+
+        if( !hasFocus ) {
+            decorView.setSystemUiVisibility( uiOption );
+        }
+
+
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case 1 :// 빨강 메뉴 선택시
-                button.setText("1");
-                break;
-            case 2 :// 녹색 메뉴 선택시
-                button.setText("2");
-                break;
+    public boolean onTouchEvent(MotionEvent event) {
+        onWindowFocusChanged(true);
+        return super.onTouchEvent(event);
+    }
+
+    public void menuClick(View view) {
+
+         view = this.getCurrentFocus();
+
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null;
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
+        onWindowFocusChanged(true);
 
-        return super.onContextItemSelected(item);
+        PopupMenu popupMenu = new PopupMenu(this,view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        Menu menu = popupMenu.getMenu();
+        inflater.inflate(R.menu.menu_main,menu);
+        onWindowFocusChanged(true);
+        popupMenu.show();
+
+
+        popupMenu.setOnMenuItemClickListener(
+                new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        if(menuItem.getItemId()==R.id.menuItem1){
+                            Toast.makeText(getApplicationContext(), "1번 선택", Toast.LENGTH_SHORT).show();
+                        }
+                        if(menuItem.getItemId()==R.id.menuItem2){
+                            Toast.makeText(getApplicationContext(), "2번 선택", Toast.LENGTH_SHORT).show();
+                        }
+
+                        return false;
+                    }
+                }
+
+        );
+
+
     }
-//    public void menuClick(View view) {
-//        PopupMenu popupMenu = new PopupMenu(this,view);
-//        MenuInflater inflater = popupMenu.getMenuInflater();
-//        Menu menu = popupMenu.getMenu();
-//        inflater.inflate(R.menu.menu_main,menu);
-//
-//        popupMenu.setOnMenuItemClickListener(
-//                new PopupMenu.OnMenuItemClickListener() {
-//                    @Override
-//                    public boolean onMenuItemClick(MenuItem menuItem) {
-//                        if(menuItem.getItemId()==R.id.menuItem1){
-//                            Toast.makeText(getApplicationContext(), "1번 선택", Toast.LENGTH_SHORT).show();
-//                        }
-//                        if(menuItem.getItemId()==R.id.menuItem2){
-//                            Toast.makeText(getApplicationContext(), "2번 선택", Toast.LENGTH_SHORT).show();
-//                        }
-//
-//                        return false;
-//                    }
-//                }
-//
-//        );
-//        popupMenu.show();
-//
-//
-//    }
-//
 
 }

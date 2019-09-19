@@ -18,33 +18,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/activity_sceneform"
     tools:context="uk.co.appoly.sceneform_example.LocationActivity">
-
-  <!--android:onClick="menuClick"-->
-  <Button
-      android:id="@+id/imgbtn"
-      android:layout_alignParentRight="true"
-      android:layout_margin="20dp"
-      android:layout_width="50dp"
-      android:layout_height="50dp"
-      android:background="#00000000"
-      android:text="버튼"
-
-      />
 
 
 
 
   <com.google.ar.sceneform.ArSceneView
-      android:layout_margin="20dp"
       android:id="@+id/ar_scene_view"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"
-      android:layout_gravity="top"
-      >
-  </com.google.ar.sceneform.ArSceneView>
+      android:layout_gravity="top">
 
-  <TextView
+  </com.google.ar.sceneform.ArSceneView>
+  
+  <Button
+      android:layout_alignParentRight="true"
+      android:padding="30dp"
+      android:id="@+id/imgbtn"
+      android:layout_margin="30dp"
+      android:layout_width="50dp"
+      android:layout_height="50dp"
+      android:src="@drawable/button"
+      android:onClick="menuClick"
+      />
+  
+    <TextView
       android:id="@+id/textView"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -58,6 +57,14 @@
       android:text="test"
       />
 
-
+  <TextView
+      android:id="@+id/ntextView"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+<ImageButton
+    android:src="@drawable/compass"
+    android:id="@+id/nimageView"
+    android:layout_width="50dp"
+    android:layout_height="50dp" />
 
 </RelativeLayout>

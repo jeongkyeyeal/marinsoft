@@ -27,6 +27,7 @@ public class GPSLcation {
             //값은 Location 형태로 리턴되며 좌표 출력 방법은 다음과 같다.
 
 
+
             double longitude = Double.parseDouble(String.format("%.3f",location.getLongitude())); //경도
             double latitude = Double.parseDouble(String.format("%.3f",location.getLatitude()));   //위도
             double altitude = Double.parseDouble(String.format("%.3f",location.getAltitude())); //고도

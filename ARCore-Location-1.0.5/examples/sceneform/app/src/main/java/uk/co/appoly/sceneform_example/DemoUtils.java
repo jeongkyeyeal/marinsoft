@@ -99,9 +99,7 @@ public class DemoUtils {
       // IMPORTANT!!!  ArSceneView needs to use the non-blocking update mode.
       Config config = new Config(session);
       config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
-      config.setPlaneFindingMode(Config.PlaneFindingMode.DISABLED);
       session.configure(config);
-
     }
     return session;
   }
