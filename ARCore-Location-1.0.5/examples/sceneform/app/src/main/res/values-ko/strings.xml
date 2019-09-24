@@ -1,0 +1,5 @@
+<resources>
+    <string name="hellow_world">여러분 안녕!</string>
+    <string name="app_name">AR코어</string>
+    <string name="plane_finding">Searching for surfaces&#8230;</string>
+</resources>

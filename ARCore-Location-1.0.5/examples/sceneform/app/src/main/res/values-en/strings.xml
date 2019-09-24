@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hellow_world">Hello world!!!</string>
+    <string name="app_name">ARCore-Locations</string>
+    <string name="plane_finding">Searching for~ surfaces&#8230;</string>
+
+</resources>
